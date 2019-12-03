@@ -71,6 +71,40 @@ on how to install the package.
 
 This classifier can be used as a drop-in replacement for any scikit-learn classifier, with the same API.
 
+
+Deprecation
+-----------
+This project is deprecated now because we can use joblib spark backend now. See project
+https://github.com/joblib/joblib-spark for details.
+
+We need install joblib spark backend package first::
+
+    pip install joblibspark
+
+In order to use joblib spark backend, first we need to register joblib spark backend first, then we can use
+a with statement ``with parallel_backend('spark', ...)``, then we can run any scikit-learn model selection
+algorithms like ``GridSearchCV``, ``RandomizedSearchCV`` upon spark cluster.
+The following is an example:
+
+.. code:: python
+
+    from sklearn import svm, datasets
+    from sklearn.model_selection import GridSearchCV
+    from joblibspark import register_spark
+    from sklearn.utils import parallel_backend
+
+    register_spark() # register spark backend
+
+    iris = datasets.load_iris()
+    parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+    svr = svm.SVC(gamma='auto')
+
+    clf = GridSearchCV(svr, parameters, cv=5)
+
+    with parallel_backend('spark', n_jobs=3):
+        clf.fit(iris.data, iris.target)
+
+
 Documentation
 -------------
 
